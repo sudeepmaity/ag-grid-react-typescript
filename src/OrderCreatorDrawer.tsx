@@ -1,27 +1,18 @@
 // OrderCreatorDrawer.tsx
 import React, { useState, useEffect } from "react";
 import { Drawer, Box, Typography, TextField, Button } from "@mui/material";
+import { OrderType } from "./types";
 
 interface OrderCreatorDrawerProps {
   open: boolean;
   onClose: () => void;
-  setRowData: React.Dispatch<React.SetStateAction<FileRowData[]>>;
-}
-
-interface FileRowData {
-  fileNumber: string;
-  accountNumber: string;
-  propertyAddress: string;
-  county: string;
-  propertyType: string;
-  gross: number;
-  net: number;
+  onOrderCreated: (order: OrderType) => void; // New prop
 }
 
 const OrderCreatorDrawer: React.FC<OrderCreatorDrawerProps> = ({
   open,
   onClose,
-  setRowData,
+  onOrderCreated,
 }) => {
   const [port, setPort] = useState("");
   const [cheque, setCheque] = useState("");
@@ -29,7 +20,7 @@ const OrderCreatorDrawer: React.FC<OrderCreatorDrawerProps> = ({
 
   // Reset inputs when the drawer is opened
   useEffect(() => {
-    if (!open) {
+    if (open) {
       setPort("");
       setCheque("");
       setErrors({});
@@ -66,22 +57,22 @@ const OrderCreatorDrawer: React.FC<OrderCreatorDrawerProps> = ({
   };
 
   // Handle form submission
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!validateInputs()) {
       return;
     }
 
-    try {
-      const response = await fetch(`http://localhost:${port}/api/items`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      setRowData(data); // Update the data in the parent component
-      onClose(); // Close the drawer
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
+    // Create the OrderType object
+    const order: OrderType = {
+      cheque,
+      port,
+    };
+
+    // Pass the order to the parent component
+    onOrderCreated(order);
+
+    // Close the drawer
+    onClose();
   };
 
   return (

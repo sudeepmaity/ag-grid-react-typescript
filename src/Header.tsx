@@ -3,21 +3,12 @@ import React, { useState } from "react";
 import { AppBar, Toolbar, Tabs, Tab, Button, Typography } from "@mui/material";
 import OrderCreatorDrawer from "./OrderCreatorDrawer";
 import OrderManagementContainer from "./OrderManagementContainer";
-
-interface FileRowData {
-  fileNumber: string;
-  accountNumber: string;
-  propertyAddress: string;
-  county: string;
-  propertyType: string;
-  gross: number;
-  net: number;
-}
+import { OrderType } from "./types";
 
 const Header: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState(0); // 0: Home, 1: Order Management, 2: Accounting
   const [openDrawer, setOpenDrawer] = useState(false);
-  const [rowData, setRowData] = useState<FileRowData[]>([]);
+  const [order, setOrder] = useState<OrderType | null>(null); // New state for OrderType
 
   // Handle tab changes
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -31,6 +22,12 @@ const Header: React.FC = () => {
 
   const handleDrawerClose = () => {
     setOpenDrawer(false);
+  };
+
+  // Handle order creation
+  const handleOrderCreated = (order: OrderType) => {
+    setOrder(order);
+    // Drawer is closed in OrderCreatorDrawer after calling this function
   };
 
   return (
@@ -64,9 +61,11 @@ const Header: React.FC = () => {
           <OrderCreatorDrawer
             open={openDrawer}
             onClose={handleDrawerClose}
-            setRowData={setRowData}
+            onOrderCreated={handleOrderCreated} // Pass the callback
           />
-          <OrderManagementContainer rowData={rowData} />
+          <OrderManagementContainer
+            order={order} // Pass the order to OrderManagementContainer
+          />
         </>
       )}
 

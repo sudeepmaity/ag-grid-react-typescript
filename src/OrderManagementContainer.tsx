@@ -1,25 +1,39 @@
 // OrderManagementContainer.tsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Typography, TextField } from "@mui/material";
 import SelectFiles from "./SelectFiles";
-
-interface FileRowData {
-  fileNumber: string;
-  accountNumber: string;
-  propertyAddress: string;
-  county: string;
-  propertyType: string;
-  gross: number;
-  net: number;
-}
+import { FileRowData, OrderType } from "./types";
 
 interface OrderManagementContainerProps {
-  rowData: FileRowData[];
+  order: OrderType | null; // Receive the OrderType from parent
 }
 
 const OrderManagementContainer: React.FC<OrderManagementContainerProps> = ({
-  rowData,
+  order,
 }) => {
+  const [rowData, setRowData] = useState<FileRowData[]>([]);
+
+  // Make API call when order changes
+  useEffect(() => {
+    if (order) {
+      const fetchData = async () => {
+        try {
+          const response = await fetch(
+            `http://localhost:${order.port}/api/items`
+          );
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const data = await response.json();
+          setRowData(data);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      };
+      fetchData();
+    }
+  }, [order]);
+
   return (
     <Box sx={{ p: 2 }}>
       <Typography variant="h6">Select Files for Order</Typography>
