@@ -1,10 +1,8 @@
-// types.ts (You can create this file to store shared types)
+// types.ts
 export interface OrderType {
   cheque: string;
-  port: string;
 }
 
-// Also, export other shared interfaces if needed
 export interface FileRowData {
   fileNumber: string;
   accountNumber: string;

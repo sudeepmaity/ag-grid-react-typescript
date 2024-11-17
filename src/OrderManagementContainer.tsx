@@ -3,9 +3,10 @@ import React, { useEffect, useState } from "react";
 import { Box, Typography, TextField } from "@mui/material";
 import SelectFiles from "./SelectFiles";
 import { FileRowData, OrderType } from "./types";
+import { mockData } from "./mockData";
 
 interface OrderManagementContainerProps {
-  order: OrderType | null; // Receive the OrderType from parent
+  order: OrderType | null;
 }
 
 const OrderManagementContainer: React.FC<OrderManagementContainerProps> = ({
@@ -13,30 +14,20 @@ const OrderManagementContainer: React.FC<OrderManagementContainerProps> = ({
 }) => {
   const [rowData, setRowData] = useState<FileRowData[]>([]);
 
-  // Make API call when order changes
+  // Load mock data when order changes
   useEffect(() => {
     if (order) {
-      const fetchData = async () => {
-        try {
-          const response = await fetch(
-            `http://localhost:${order.port}/api/items`
-          );
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          const data = await response.json();
-          setRowData(data);
-        } catch (error) {
-          console.error("Error fetching data:", error);
-        }
-      };
-      fetchData();
+      // Instead of making an API call, load mock data
+      setRowData(mockData);
     }
   }, [order]);
 
   return (
     <Box sx={{ p: 2 }}>
       <Typography variant="h6">Select Files for Order</Typography>
+      {order && (
+        <Typography variant="subtitle1">Cheque: {order.cheque}</Typography>
+      )}
       <Box display="flex" alignItems="center" gap={2} mt={2}>
         <TextField variant="outlined" placeholder="Search" />
         <Box>

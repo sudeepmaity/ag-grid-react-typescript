@@ -6,7 +6,7 @@ import { OrderType } from "./types";
 interface OrderCreatorDrawerProps {
   open: boolean;
   onClose: () => void;
-  onOrderCreated: (order: OrderType) => void; // New prop
+  onOrderCreated: (order: OrderType) => void;
 }
 
 const OrderCreatorDrawer: React.FC<OrderCreatorDrawerProps> = ({
@@ -14,36 +14,25 @@ const OrderCreatorDrawer: React.FC<OrderCreatorDrawerProps> = ({
   onClose,
   onOrderCreated,
 }) => {
-  const [port, setPort] = useState("");
   const [cheque, setCheque] = useState("");
-  const [errors, setErrors] = useState<{ port?: string; cheque?: string }>({});
+  const [errors, setErrors] = useState<{ cheque?: string }>({});
 
   // Reset inputs when the drawer is opened
   useEffect(() => {
     if (open) {
-      setPort("");
       setCheque("");
       setErrors({});
     }
   }, [open]);
 
   // Handle input changes
-  const handlePortChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setPort(event.target.value);
-  };
-
   const handleChequeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCheque(event.target.value);
   };
 
   // Validate inputs
   const validateInputs = () => {
-    const errors: { port?: string; cheque?: string } = {};
-    if (!port) {
-      errors.port = "Port is required";
-    } else if (isNaN(Number(port))) {
-      errors.port = "Port must be a number";
-    }
+    const errors: { cheque?: string } = {};
 
     if (!cheque) {
       errors.cheque = "Cheque is required";
@@ -65,7 +54,6 @@ const OrderCreatorDrawer: React.FC<OrderCreatorDrawerProps> = ({
     // Create the OrderType object
     const order: OrderType = {
       cheque,
-      port,
     };
 
     // Pass the order to the parent component
@@ -79,16 +67,6 @@ const OrderCreatorDrawer: React.FC<OrderCreatorDrawerProps> = ({
     <Drawer anchor="right" open={open} onClose={onClose}>
       <Box sx={{ width: 300, p: 2 }} role="presentation">
         <Typography variant="h6">Enter Details</Typography>
-        <TextField
-          label="Port"
-          variant="outlined"
-          value={port}
-          onChange={handlePortChange}
-          fullWidth
-          margin="normal"
-          error={Boolean(errors.port)}
-          helperText={errors.port}
-        />
         <TextField
           label="Cheque"
           variant="outlined"

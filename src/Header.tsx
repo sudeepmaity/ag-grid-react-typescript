@@ -8,7 +8,7 @@ import { OrderType } from "./types";
 const Header: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState(0); // 0: Home, 1: Order Management, 2: Accounting
   const [openDrawer, setOpenDrawer] = useState(false);
-  const [order, setOrder] = useState<OrderType | null>(null); // New state for OrderType
+  const [order, setOrder] = useState<OrderType | null>(null);
 
   // Handle tab changes
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -61,11 +61,9 @@ const Header: React.FC = () => {
           <OrderCreatorDrawer
             open={openDrawer}
             onClose={handleDrawerClose}
-            onOrderCreated={handleOrderCreated} // Pass the callback
+            onOrderCreated={handleOrderCreated}
           />
-          <OrderManagementContainer
-            order={order} // Pass the order to OrderManagementContainer
-          />
+          <OrderManagementContainer order={order} />
         </>
       )}
 
