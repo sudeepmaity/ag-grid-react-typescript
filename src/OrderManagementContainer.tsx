@@ -14,7 +14,7 @@ const OrderManagementContainer: React.FC<OrderManagementContainerProps> = ({
   const [rowData, setRowData] = useState<FileRowData[]>([]);
 
   // Make API call when order changes
-  useEffect(() => {
+  /*useEffect(() => {
     if (order) {
       const fetchData = async () => {
         try {
@@ -32,7 +32,7 @@ const OrderManagementContainer: React.FC<OrderManagementContainerProps> = ({
       };
       fetchData();
     }
-  }, [order]);
+  }, [order]);*/
 
   return (
     <Box sx={{ p: 2 }}>

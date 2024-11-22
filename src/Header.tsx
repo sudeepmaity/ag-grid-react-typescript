@@ -1,40 +1,37 @@
-// Header.tsx
 import React, { useState } from "react";
-import { AppBar, Toolbar, Tabs, Tab, Button, Typography } from "@mui/material";
+import { AppBar, Toolbar, Tabs, Tab, Button } from "@mui/material";
 import OrderCreatorDrawer from "./OrderCreatorDrawer";
-import OrderManagementContainer from "./OrderManagementContainer";
+import OMLeftNav from "./OMLeftNav";
+import OMNavFileInfo from "./OMNavFileInfo";
 import { OrderType } from "./types";
 
 const Header: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState(0); // 0: Home, 1: Order Management, 2: Accounting
+  const [isLeftPanelVisible, setIsLeftPanelVisible] = useState(true);
   const [openDrawer, setOpenDrawer] = useState(false);
-  const [order, setOrder] = useState<OrderType | null>(null); // New state for OrderType
+  const [orderInfo, setOrderInfo] = useState<OrderType>({
+    firmName: "N/A",
+    orderDate: "N/A",
+    lockboxNumber: "N/A",
+    batchReferenceNumber: "N/A",
+    noOfChecks: "N/A",
+  });
 
-  // Handle tab changes
+  const [gridData, setGridData] = useState<OrderType[]>([]); // State to populate AGrid
+
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setSelectedTab(newValue);
   };
 
-  // Handle drawer open/close
-  const handleDrawerOpen = () => {
-    setOpenDrawer(true);
-  };
-
-  const handleDrawerClose = () => {
-    setOpenDrawer(false);
-  };
-
-  // Handle order creation
-  const handleOrderCreated = (order: OrderType) => {
-    setOrder(order);
-    // Drawer is closed in OrderCreatorDrawer after calling this function
+  const handleOrderCreated = (newOrder: OrderType) => {
+    setOrderInfo(newOrder);
+    setGridData((prev) => [...prev, newOrder]); // Add the new order to grid data
   };
 
   return (
     <>
-      <AppBar position="static">
+      <AppBar position="fixed">
         <Toolbar>
-          {/* Tabs on the left side */}
           <Tabs
             value={selectedTab}
             onChange={handleTabChange}
@@ -46,42 +43,54 @@ const Header: React.FC = () => {
             <Tab label="Order Management" />
             <Tab label="Accounting" />
           </Tabs>
-          {/* "Create New Order" button on the right side, visible only on Order Management tab */}
           {selectedTab === 1 && (
-            <Button color="inherit" onClick={handleDrawerOpen}>
+            <Button color="inherit" onClick={() => setOpenDrawer(true)}>
               Create New Order
             </Button>
           )}
         </Toolbar>
       </AppBar>
 
-      {/* Conditionally render content based on selected tab */}
+      <Toolbar />
+
+      {/* Order Management Tab */}
       {selectedTab === 1 && (
         <>
-          <OrderCreatorDrawer
-            open={openDrawer}
-            onClose={handleDrawerClose}
-            onOrderCreated={handleOrderCreated} // Pass the callback
-          />
-          <OrderManagementContainer
-            order={order} // Pass the order to OrderManagementContainer
-          />
+          <OMLeftNav
+            isVisible={isLeftPanelVisible}
+            onCollapse={() => setIsLeftPanelVisible(false)}
+            onExpand={() => setIsLeftPanelVisible(true)}
+          >
+            <OMNavFileInfo
+              orderInfo={orderInfo}
+              summaryInfo={{
+                calculatedGross: "N/A",
+                reportedNet: "N/A",
+                calculatedNet: "N/A",
+                netDifference: "N/A",
+                accountNo: "N/A",
+                split: "N/A",
+                costCenter: "N/A",
+              }}
+            />
+          </OMLeftNav>
         </>
       )}
 
-      {selectedTab === 0 && (
+      {/* Accounting Tab */}
+      {selectedTab === 2 && (
         <div style={{ padding: "20px" }}>
-          <Typography variant="h4">Welcome to the Home Page</Typography>
-          {/* Add more content as needed */}
+          <h2>Accounting Page</h2>
+          <p>Content for the Accounting tab goes here.</p>
         </div>
       )}
 
-      {selectedTab === 2 && (
-        <div style={{ padding: "20px" }}>
-          <Typography variant="h4">Accounting Page</Typography>
-          {/* Add more content as needed */}
-        </div>
-      )}
+      {/* Order Creator Drawer */}
+      <OrderCreatorDrawer
+        open={openDrawer}
+        onClose={() => setOpenDrawer(false)}
+        onOrderCreated={handleOrderCreated}
+      />
     </>
   );
 };

@@ -1,4 +1,3 @@
-// OrderCreatorDrawer.tsx
 import React, { useState, useEffect } from "react";
 import { Drawer, Box, Typography, TextField, Button } from "@mui/material";
 import { OrderType } from "./types";
@@ -6,7 +5,7 @@ import { OrderType } from "./types";
 interface OrderCreatorDrawerProps {
   open: boolean;
   onClose: () => void;
-  onOrderCreated: (order: OrderType) => void; // New prop
+  onOrderCreated: (order: OrderType) => void;
 }
 
 const OrderCreatorDrawer: React.FC<OrderCreatorDrawerProps> = ({
@@ -15,91 +14,93 @@ const OrderCreatorDrawer: React.FC<OrderCreatorDrawerProps> = ({
   onOrderCreated,
 }) => {
   const [port, setPort] = useState("");
-  const [cheque, setCheque] = useState("");
-  const [errors, setErrors] = useState<{ port?: string; cheque?: string }>({});
+  const [firmName, setFirmName] = useState("");
+  const [orderDate, setOrderDate] = useState("");
+  const [lockboxNumber, setLockboxNumber] = useState("");
+  const [batchReferenceNumber, setBatchReferenceNumber] = useState("");
+  const [noOfChecks, setNoOfChecks] = useState("");
 
-  // Reset inputs when the drawer is opened
+  // Reset all fields when the drawer is opened
   useEffect(() => {
     if (open) {
       setPort("");
-      setCheque("");
-      setErrors({});
+      setFirmName("");
+      setOrderDate("");
+      setLockboxNumber("");
+      setBatchReferenceNumber("");
+      setNoOfChecks("");
     }
   }, [open]);
 
-  // Handle input changes
-  const handlePortChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setPort(event.target.value);
-  };
-
-  const handleChequeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setCheque(event.target.value);
-  };
-
-  // Validate inputs
-  const validateInputs = () => {
-    const errors: { port?: string; cheque?: string } = {};
-    if (!port) {
-      errors.port = "Port is required";
-    } else if (isNaN(Number(port))) {
-      errors.port = "Port must be a number";
-    }
-
-    if (!cheque) {
-      errors.cheque = "Cheque is required";
-    } else if (isNaN(Number(cheque))) {
-      errors.cheque = "Cheque must be a number";
-    }
-
-    setErrors(errors);
-
-    return Object.keys(errors).length === 0;
-  };
-
   // Handle form submission
   const handleSubmit = () => {
-    if (!validateInputs()) {
-      return;
-    }
-
-    // Create the OrderType object
-    const order: OrderType = {
-      cheque,
-      port,
+    const newOrder: OrderType = {
+      firmName: firmName || "N/A",
+      orderDate: orderDate || "N/A",
+      lockboxNumber: lockboxNumber || "N/A",
+      batchReferenceNumber: batchReferenceNumber || "N/A",
+      noOfChecks: noOfChecks || "N/A",
     };
 
-    // Pass the order to the parent component
-    onOrderCreated(order);
-
-    // Close the drawer
+    onOrderCreated(newOrder);
     onClose();
   };
 
   return (
     <Drawer anchor="right" open={open} onClose={onClose}>
-      <Box sx={{ width: 300, p: 2 }} role="presentation">
-        <Typography variant="h6">Enter Details</Typography>
+      <Box sx={{ width: 300, p: 2 }}>
+        <Typography variant="h6">Create Order</Typography>
+
         <TextField
-          label="Port"
-          variant="outlined"
+          label="Port No"
           value={port}
-          onChange={handlePortChange}
+          onChange={(e) => setPort(e.target.value)}
           fullWidth
           margin="normal"
-          error={Boolean(errors.port)}
-          helperText={errors.port}
         />
         <TextField
-          label="Cheque"
-          variant="outlined"
-          value={cheque}
-          onChange={handleChequeChange}
+          label="Firm Name"
+          value={firmName}
+          onChange={(e) => setFirmName(e.target.value)}
           fullWidth
           margin="normal"
-          error={Boolean(errors.cheque)}
-          helperText={errors.cheque}
         />
-        <Button variant="contained" onClick={handleSubmit} fullWidth>
+        <TextField
+          label="Order Date"
+          value={orderDate}
+          onChange={(e) => setOrderDate(e.target.value)}
+          fullWidth
+          margin="normal"
+        />
+        <TextField
+          label="Lockbox Number"
+          value={lockboxNumber}
+          onChange={(e) => setLockboxNumber(e.target.value)}
+          fullWidth
+          margin="normal"
+        />
+        <TextField
+          label="Batch/Ticket Reference Number"
+          value={batchReferenceNumber}
+          onChange={(e) => setBatchReferenceNumber(e.target.value)}
+          fullWidth
+          margin="normal"
+        />
+        <TextField
+          label="No. of Checks"
+          value={noOfChecks}
+          onChange={(e) => setNoOfChecks(e.target.value)}
+          fullWidth
+          margin="normal"
+        />
+
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSubmit}
+          fullWidth
+          sx={{ mt: 2 }}
+        >
           Submit
         </Button>
       </Box>
