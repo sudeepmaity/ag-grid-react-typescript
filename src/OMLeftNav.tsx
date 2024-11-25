@@ -1,5 +1,7 @@
+// OMLeftNav.tsx
 import React from "react";
-import { Box, Button } from "@mui/material";
+import { Box, Button, IconButton } from "@mui/material";
+import { ChevronRight } from "@mui/icons-material";
 
 interface OMLeftNavProps {
   isVisible: boolean;
@@ -16,8 +18,20 @@ const OMLeftNav: React.FC<OMLeftNavProps> = ({
 }) => {
   if (!isVisible) {
     return (
-      <Box sx={{ position: "absolute", bottom: 16, left: 16 }}>
-        <Button onClick={onExpand}>Expand</Button>
+      <Box
+        sx={{
+          width: "40px", // Adjust the width as needed
+          backgroundColor: "#f0f0f0",
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: "2px 0 5px rgba(0, 0, 0, 0.1)",
+        }}
+      >
+        <IconButton onClick={onExpand}>
+          <ChevronRight />
+        </IconButton>
       </Box>
     );
   }
@@ -25,13 +39,10 @@ const OMLeftNav: React.FC<OMLeftNavProps> = ({
   return (
     <Box
       sx={{
-        width: 300,
+        width: "300px",
         backgroundColor: "#f0f0f0",
         padding: 2,
-        position: "absolute",
-        top: 64,
-        left: 0,
-        height: "calc(100% - 64px)",
+        height: "100%",
         boxShadow: "2px 0 5px rgba(0, 0, 0, 0.1)",
         overflowY: "auto",
       }}

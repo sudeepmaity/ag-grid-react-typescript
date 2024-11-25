@@ -1,31 +1,31 @@
+// Header.tsx
 import React, { useState } from "react";
 import { AppBar, Toolbar, Tabs, Tab, Button } from "@mui/material";
-import OrderCreatorDrawer from "./OrderCreatorDrawer";
-import OMLeftNav from "./OMLeftNav";
-import OMNavFileInfo from "./OMNavFileInfo";
-import { OrderType } from "./types";
+import { useNavigate } from "react-router-dom";
+import OrderCreateContainer from "./OrderCreateContainer";
 
 const Header: React.FC = () => {
-  const [selectedTab, setSelectedTab] = useState(0); // 0: Home, 1: Order Management, 2: Accounting
-  const [isLeftPanelVisible, setIsLeftPanelVisible] = useState(true);
+  const navigate = useNavigate();
+  const [selectedTab, setSelectedTab] = React.useState(0);
   const [openDrawer, setOpenDrawer] = useState(false);
-  const [orderInfo, setOrderInfo] = useState<OrderType>({
-    firmName: "N/A",
-    orderDate: "N/A",
-    lockboxNumber: "N/A",
-    batchReferenceNumber: "N/A",
-    noOfChecks: "N/A",
-  });
-
-  const [gridData, setGridData] = useState<OrderType[]>([]); // State to populate AGrid
+  const [orderData, setOrderData] = useState(null);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setSelectedTab(newValue);
+    if (newValue === 0) {
+      navigate("/");
+    } else if (newValue === 1) {
+      navigate("/order-management");
+    } else if (newValue === 2) {
+      navigate("/accounting");
+    }
   };
 
-  const handleOrderCreated = (newOrder: OrderType) => {
-    setOrderInfo(newOrder);
-    setGridData((prev) => [...prev, newOrder]); // Add the new order to grid data
+  const handleOrderCreated = (newOrder: any) => {
+    setOrderData(newOrder);
+    setOpenDrawer(false);
+    // Navigate to /order-management with state
+    navigate("/order-management", { state: newOrder });
   };
 
   return (
@@ -53,40 +53,8 @@ const Header: React.FC = () => {
 
       <Toolbar />
 
-      {/* Order Management Tab */}
-      {selectedTab === 1 && (
-        <>
-          <OMLeftNav
-            isVisible={isLeftPanelVisible}
-            onCollapse={() => setIsLeftPanelVisible(false)}
-            onExpand={() => setIsLeftPanelVisible(true)}
-          >
-            <OMNavFileInfo
-              orderInfo={orderInfo}
-              summaryInfo={{
-                calculatedGross: "N/A",
-                reportedNet: "N/A",
-                calculatedNet: "N/A",
-                netDifference: "N/A",
-                accountNo: "N/A",
-                split: "N/A",
-                costCenter: "N/A",
-              }}
-            />
-          </OMLeftNav>
-        </>
-      )}
-
-      {/* Accounting Tab */}
-      {selectedTab === 2 && (
-        <div style={{ padding: "20px" }}>
-          <h2>Accounting Page</h2>
-          <p>Content for the Accounting tab goes here.</p>
-        </div>
-      )}
-
-      {/* Order Creator Drawer */}
-      <OrderCreatorDrawer
+      {/* Order Create Container Drawer */}
+      <OrderCreateContainer
         open={openDrawer}
         onClose={() => setOpenDrawer(false)}
         onOrderCreated={handleOrderCreated}
