@@ -1,16 +1,15 @@
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
-import Dashboard from "./DashBoard";
+import Dashboard from "./Dashboard";
 import SelectFiles from "./SelectFiles";
 import OMLeftNav from "./OMLeftNav";
 import OMNavFileInfo from "./OMNavFileInfo";
-import { Box } from "@mui/material";
 import { OrderType, SummaryType } from "./types";
 
 const OrderManagementContent = () => {
   const location = useLocation();
   const orderData = location.state as OrderType | null;
-  const [isLeftNavVisible, setIsLeftNavVisible] = useState(true);
+  const [menuCollapsed, setMenuCollapse] = useState(false);
 
   const summaryInfo: SummaryType = {
     calculatedGross: "$1000",
@@ -27,21 +26,21 @@ const OrderManagementContent = () => {
   }
 
   return (
-    <Box display="flex" height="100%">
+    <div style={{ display: "flex", height: "100%" }}>
       {/* Left Navigation */}
       <OMLeftNav
-        isVisible={isLeftNavVisible}
-        onCollapse={() => setIsLeftNavVisible(false)}
-        onExpand={() => setIsLeftNavVisible(true)}
+        menucollapsed={menuCollapsed}
+        setMenuCollapse={setMenuCollapse}
+        topMargin={64}
       >
         <OMNavFileInfo orderInfo={orderData} summaryInfo={summaryInfo} />
       </OMLeftNav>
 
       {/* Main Content */}
-      <Box flex={1} sx={{ padding: 2 }}>
+      <div style={{ flex: 1, padding: "16px" }}>
         <SelectFiles orderData={orderData} />
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 };
 
