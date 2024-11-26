@@ -9,7 +9,7 @@ const OrderManagementContent = () => {
   const location = useLocation();
   const orderData = location.state as OrderType | null;
 
-  return !orderData ? <Dashboard /> : <SelectFiles orderData={orderData} />;
+  return !orderData ? <Dashboard /> : <SelectFiles />;
 };
 
 export default OrderManagementContent;

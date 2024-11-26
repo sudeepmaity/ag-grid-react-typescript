@@ -1,18 +1,56 @@
-import React from "react";
-import { Box, Typography } from "@mui/material";
-import { OrderType, SummaryType } from "./types";
+// OrderInfoPanel.tsx
 
-interface OMNavFileInfoProps {
+import React from "react";
+import { Box, IconButton, Typography } from "@mui/material";
+import { OrderType, SummaryType } from "./types";
+import { ExpandArrow, CollapseArrow } from "./utility"; // Import the icons
+
+interface OrderInfoPanelProps {
+  isVisible: boolean;
+  onCollapse: () => void;
+  onExpand: () => void;
   orderInfo: OrderType;
   summaryInfo: SummaryType;
 }
 
-const OMNavFileInfo: React.FC<OMNavFileInfoProps> = ({
+const OrderInfoPanel: React.FC<OrderInfoPanelProps> = ({
+  isVisible,
+  onCollapse,
+  onExpand,
   orderInfo,
   summaryInfo,
 }) => {
+  if (!isVisible) {
+    return (
+      <Box
+        sx={{
+          width: "40px",
+          backgroundColor: "#f0f0f0",
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: "2px 0 5px rgba(0, 0, 0, 0.1)",
+        }}
+      >
+        <IconButton onClick={onExpand}>
+          <ExpandArrow />
+        </IconButton>
+      </Box>
+    );
+  }
+
   return (
-    <Box>
+    <Box
+      sx={{
+        width: "300px",
+        backgroundColor: "#f0f0f0",
+        padding: 2,
+        height: "100%",
+        boxShadow: "2px 0 5px rgba(0, 0, 0, 0.1)",
+        overflowY: "auto",
+      }}
+    >
       {/* Order Info Section */}
       <Box sx={{ marginBottom: 3 }}>
         <Typography variant="h6" sx={{ marginBottom: 1 }}>
@@ -66,8 +104,14 @@ const OMNavFileInfo: React.FC<OMNavFileInfoProps> = ({
         </Typography>
         <Typography variant="body2">National</Typography>
       </Box>
+
+      <Box sx={{ marginTop: 2, display: "flex", justifyContent: "center" }}>
+        <IconButton onClick={onCollapse}>
+          <CollapseArrow />
+        </IconButton>
+      </Box>
     </Box>
   );
 };
 
-export default OMNavFileInfo;
+export default OrderInfoPanel;
