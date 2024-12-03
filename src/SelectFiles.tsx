@@ -1,5 +1,5 @@
 // SelectFiles.tsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Box, Typography } from "@mui/material";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
@@ -25,6 +25,10 @@ const SelectFiles: React.FC = () => {
   const [rowData, setRowData] = useState<FileRowData[]>([]);
   const [isLeftPanelVisible, setIsLeftPanelVisible] = useState(true);
 
+  const [gridApi, setGridApi] = useState<any>(null);
+  const [summaryInfo, setSummaryInfo] =
+    useState<SummaryType>(defaultSummaryInfo);
+
   const columnDefs: ColDef[] = [
     { headerName: "File Number", field: "fileNumber", checkboxSelection: true },
     { headerName: "Account Number", field: "accountNumber" },
@@ -35,7 +39,6 @@ const SelectFiles: React.FC = () => {
     { headerName: "Net", field: "net", filter: "agNumberColumnFilter" },
   ];
 
-  // Fetch data based on orderData.port
   useEffect(() => {
     const fetchData = async () => {
       if (orderData && orderData.port) {
@@ -55,6 +58,25 @@ const SelectFiles: React.FC = () => {
     };
     fetchData();
   }, [orderData]);
+
+  const onGridReady = (params: any) => {
+    setGridApi(params.api);
+  };
+
+  const onSelectionChanged = useCallback(() => {
+    if (gridApi) {
+      const selectedNodes = gridApi.getSelectedNodes();
+      const selectedData = selectedNodes.map((node: any) => node.data);
+      const totalGross = selectedData.reduce(
+        (sum: number, row: FileRowData) => sum + row.gross,
+        0
+      );
+      setSummaryInfo((prev) => ({
+        ...prev,
+        calculatedGross: totalGross.toString(),
+      }));
+    }
+  }, [gridApi]);
 
   if (!orderData) {
     return (
@@ -77,7 +99,7 @@ const SelectFiles: React.FC = () => {
         onCollapse={() => setIsLeftPanelVisible(false)}
         onExpand={() => setIsLeftPanelVisible(true)}
         orderInfo={orderData}
-        summaryInfo={defaultSummaryInfo}
+        summaryInfo={summaryInfo} // Pass the updated summaryInfo
       />
       <Box sx={{ flexGrow: 1, padding: 2 }}>
         {rowData.length === 0 ? (
@@ -100,6 +122,8 @@ const SelectFiles: React.FC = () => {
               rowSelection="multiple"
               animateRows={true}
               pagination={true}
+              onGridReady={onGridReady}
+              onSelectionChanged={onSelectionChanged}
             />
           </Box>
         )}
