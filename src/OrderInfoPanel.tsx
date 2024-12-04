@@ -2,15 +2,15 @@
 
 import React from "react";
 import { Box, IconButton, Typography } from "@mui/material";
-import { OrderType, SummaryType } from "./types";
-import { ExpandArrow, CollapseArrow } from "./utility"; // Import the icons
+import { OrderType } from "./types";
+import { ExpandArrow, CollapseArrow } from "./utility";
+import { useOrderInfo } from "./hooks/OrderInfoContext";
 
 interface OrderInfoPanelProps {
   isVisible: boolean;
   onCollapse: () => void;
   onExpand: () => void;
   orderInfo: OrderType;
-  summaryInfo: SummaryType;
 }
 
 const OrderInfoPanel: React.FC<OrderInfoPanelProps> = ({
@@ -18,8 +18,9 @@ const OrderInfoPanel: React.FC<OrderInfoPanelProps> = ({
   onCollapse,
   onExpand,
   orderInfo,
-  summaryInfo,
 }) => {
+  const { selectedFilesAmount, summaryInfo } = useOrderInfo();
+
   if (!isVisible) {
     return (
       <Box
@@ -77,7 +78,7 @@ const OrderInfoPanel: React.FC<OrderInfoPanelProps> = ({
           Summary
         </Typography>
         <Typography variant="body2">
-          Calculated Gross: {summaryInfo.calculatedGross}
+          Calculated Gross: {selectedFilesAmount.calculatedGross}
         </Typography>
         <Typography variant="body2">
           Reported Net: {summaryInfo.reportedNet}

@@ -1,4 +1,5 @@
 // types.ts
+
 export interface OrderType {
   port: string;
   firmName: string;
@@ -9,13 +10,16 @@ export interface OrderType {
 }
 
 export interface SummaryType {
-  calculatedGross: string;
   reportedNet: string;
   calculatedNet: string;
   netDifference: string;
   accountNo: string;
   split: string;
   costCenter: string;
+}
+
+export interface SelectedFilesAmountType {
+  calculatedGross: string;
 }
 
 export interface FileRowData {
