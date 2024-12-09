@@ -1,0 +1,187 @@
+import React from 'react';
+import { Grid, Typography } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import clsx from 'clsx';
+import { useOrderInfo } from 'hooks/OrderInfoContext';
+import moment from 'moment';
+import { useLocation } from 'react-router-dom';
+import { numberValueFormatter } from './fileListConfig';
+import { orderType } from './types';
+
+const useStyles = makeStyles((theme) => ({
+  orderDetailsContainer: {
+    marginTop: theme.spacing(2),
+    padding: theme.spacing(2),
+    borderBottom: `1px solid ${theme.palette.divider}`,
+  },
+  title: {
+    display: 'flex',
+    flexDirection: 'row',
+    width: '100%',
+    flexGrow: 1,
+    paddingBottom: theme.spacing(2),
+    borderBottom: `1px solid ${theme.palette.divider}`,
+  },
+  detail: {
+    display: 'flex',
+    flexDirection: 'row',
+    width: '100%',
+    flexGrow: 1,
+    marginBottom: theme.spacing(1),
+  },
+  detailLast: {
+    marginBottom: 0,
+  },
+  detailEnd: {
+    marginBottom: 0,
+  },
+  subtitle: {
+    whiteSpace: 'nowrap',
+    width: 93,
+  },
+  item: {
+    width: 176,
+    whiteSpace: 'pre-wrap',
+    textTransform: 'capitalize',
+  },
+  info: {
+    width: '100%',
+    whiteSpace: 'pre-wrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    marginLeft: theme.spacing(2),
+  },
+  infoAmount: {
+    textAlign: 'right',
+  },
+}));
+
+interface DetailRowProps {
+  label: string;
+  value: string | number;
+  classes: ReturnType<typeof useStyles>;
+  isLast?: boolean;
+  isEnd?: boolean;
+  isAmount?: boolean;
+  valueStyle?: React.CSSProperties;
+}
+
+const DetailRow: React.FC<DetailRowProps> = ({
+  label,
+  value,
+  classes,
+  isLast,
+  isEnd,
+  isAmount,
+  valueStyle,
+}) => (
+  <div className={clsx(classes.detail, isLast && classes.detailLast, isEnd && classes.detailEnd)}>
+    <Typography variant="h6" className={classes.item} color="textSecondary">
+      {label}
+    </Typography>
+    <div className={clsx(classes.info, isAmount && classes.infoAmount)}>
+      <Typography variant="body2" color="textPrimary" style={valueStyle}>
+        {value}
+      </Typography>
+    </div>
+  </div>
+);
+
+const OrderInfoPanel: React.FC = () => {
+  const location = useLocation<{ order: orderType }>();
+  const orderData = location.state?.order;
+  const { selectedFilesAmount } = useOrderInfo();
+  const classes = useStyles();
+
+  const noInfo = '-';
+
+  const calculatedNet = selectedFilesAmount?.calculatedNet || 0;
+  const reportedNet = orderData?.reportedAmount || 0;
+  const netDifference = parseFloat((calculatedNet - reportedNet).toFixed(2));
+  const netDifferenceColor = netDifference !== 0 ? 'red' : 'green';
+
+  return (
+    <div>
+      <Grid container className={classes.orderDetailsContainer}>
+        <Grid item sm={12}>
+          {/* Order Info Title */}
+          <div className={classes.title}>
+            <Typography variant="h4" className={classes.subtitle} color="textSecondary">
+              Order Info
+            </Typography>
+          </div>
+
+          <DetailRow
+            label="Firm Name:"
+            value={orderData?.firm?.firmName || noInfo}
+            classes={classes}
+          />
+
+          <DetailRow
+            label="Order Date:"
+            value={orderData?.orderDate ? moment(orderData.orderDate).format('MM/DD/YYYY') : noInfo}
+            classes={classes}
+          />
+
+          <DetailRow
+            label="Lockbox Number:"
+            value={orderData?.lockboxNumber?.name || noInfo}
+            classes={classes}
+          />
+
+          <DetailRow
+            label="Batch/Ticket Reference No:"
+            value={orderData?.batchNumber || noInfo}
+            classes={classes}
+          />
+
+          <DetailRow
+            label="No. of Checks:"
+            value={orderData?.numberOfChecks || 0}
+            classes={classes}
+            isLast
+          />
+
+          {/* Summary Title */}
+          <div className={classes.title}>
+            <Typography variant="h4" className={classes.subtitle} color="textSecondary">
+              Summary
+            </Typography>
+          </div>
+
+          <DetailRow
+            label="Calculated Gross:"
+            value={numberValueFormatter(selectedFilesAmount?.calculatedGross || 0, true) || noInfo}
+            classes={classes}
+            isAmount
+          />
+
+          <DetailRow
+            label="Reported Net:"
+            value={numberValueFormatter(orderData?.reportedAmount || 0, true) || noInfo}
+            classes={classes}
+            isAmount
+          />
+
+          <DetailRow
+            label="Calculated Net:"
+            value={numberValueFormatter(calculatedNet, true) || noInfo}
+            classes={classes}
+            isAmount
+          />
+
+          <DetailRow
+            label="Net Difference:"
+            value={numberValueFormatter(netDifference, true) || noInfo}
+            classes={classes}
+            isAmount
+            isEnd
+            valueStyle={{ color: netDifferenceColor }}
+          />
+        </Grid>
+      </Grid>
+    </div>
+  );
+};
+
+export default OrderInfoPanel;
