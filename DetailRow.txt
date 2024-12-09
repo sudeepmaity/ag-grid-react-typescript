@@ -1,0 +1,44 @@
+import React from 'react';
+import { Typography } from '@material-ui/core';
+import clsx from 'clsx';
+
+interface DetailRowProps {
+  label: string;
+  value: string | number;
+  classes: {
+    detail: string;
+    detailLast: string;
+    detailEnd: string;
+    item: string;
+    info: string;
+    infoAmount: string;
+  };
+  isLast?: boolean;
+  isEnd?: boolean;
+  isAmount?: boolean;
+  valueStyle?: React.CSSProperties;
+}
+
+// eslint-disable-next-line react/prop-types
+const DetailRow: React.FC<DetailRowProps> = ({
+  label,
+  value,
+  classes,
+  isLast,
+  isEnd,
+  isAmount,
+  valueStyle,
+}) => (
+  <div className={clsx(classes.detail, isLast && classes.detailLast, isEnd && classes.detailEnd)}>
+    <Typography variant="h6" className={classes.item} color="textSecondary">
+      {label}
+    </Typography>
+    <div className={clsx(classes.info, isAmount && classes.infoAmount)}>
+      <Typography variant="body2" color="textPrimary" style={valueStyle}>
+        {value}
+      </Typography>
+    </div>
+  </div>
+);
+
+export default DetailRow;

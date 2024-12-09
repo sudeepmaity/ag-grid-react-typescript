@@ -7,6 +7,7 @@ import moment from 'moment';
 import { useLocation } from 'react-router-dom';
 import { numberValueFormatter } from './fileListConfig';
 import { orderType } from './types';
+import DetailRow from './DetailRow';
 
 const useStyles = makeStyles((theme) => ({
   orderDetailsContainer: {
@@ -55,37 +56,6 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'right',
   },
 }));
-
-interface DetailRowProps {
-  label: string;
-  value: string | number;
-  classes: ReturnType<typeof useStyles>;
-  isLast?: boolean;
-  isEnd?: boolean;
-  isAmount?: boolean;
-  valueStyle?: React.CSSProperties;
-}
-
-const DetailRow: React.FC<DetailRowProps> = ({
-  label,
-  value,
-  classes,
-  isLast,
-  isEnd,
-  isAmount,
-  valueStyle,
-}) => (
-  <div className={clsx(classes.detail, isLast && classes.detailLast, isEnd && classes.detailEnd)}>
-    <Typography variant="h6" className={classes.item} color="textSecondary">
-      {label}
-    </Typography>
-    <div className={clsx(classes.info, isAmount && classes.infoAmount)}>
-      <Typography variant="body2" color="textPrimary" style={valueStyle}>
-        {value}
-      </Typography>
-    </div>
-  </div>
-);
 
 const OrderInfoPanel: React.FC = () => {
   const location = useLocation<{ order: orderType }>();
