@@ -1,10 +1,11 @@
-// OrderInfoPanel.tsx
-
+// Filename : OrderInfoPanel.tsx
 import React from "react";
 import { Box, IconButton, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import { OrderType } from "./types";
 import { ExpandArrow, CollapseArrow } from "./utility";
 import { useOrderInfo } from "./hooks/OrderInfoContext";
+import { OrderManagementOrderInfo } from "./LeftNavIcons"; // Import the icon
 
 interface OrderInfoPanelProps {
   isVisible: boolean;
@@ -20,6 +21,7 @@ const OrderInfoPanel: React.FC<OrderInfoPanelProps> = ({
   orderInfo,
 }) => {
   const { selectedFilesAmount, summaryInfo } = useOrderInfo();
+  const navigate = useNavigate();
 
   if (!isVisible) {
     return (
@@ -29,11 +31,19 @@ const OrderInfoPanel: React.FC<OrderInfoPanelProps> = ({
           backgroundColor: "#f0f0f0",
           height: "100%",
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "space-between",
           boxShadow: "2px 0 5px rgba(0, 0, 0, 0.1)",
+          py: 2,
         }}
       >
+        {/* Clickable icon that navigates on click */}
+        <IconButton onClick={() => navigate("/order-management")}>
+          <OrderManagementOrderInfo />
+        </IconButton>
+
+        {/* The expand button at the bottom */}
         <IconButton onClick={onExpand}>
           <ExpandArrow />
         </IconButton>
