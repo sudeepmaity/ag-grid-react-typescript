@@ -1,5 +1,4 @@
-// OrderInfoPanel.tsx
-
+// Filename: OrderInfoPanel.tsx
 import React from "react";
 import { Box, IconButton, Typography } from "@mui/material";
 import { OrderType } from "./types";
@@ -19,7 +18,7 @@ const OrderInfoPanel: React.FC<OrderInfoPanelProps> = ({
   onExpand,
   orderInfo,
 }) => {
-  const { selectedFilesAmount, summaryInfo } = useOrderInfo();
+  const { selectedFilesAmount, summaryInfo, accountInfoList } = useOrderInfo();
 
   if (!isVisible) {
     return (
@@ -47,7 +46,7 @@ const OrderInfoPanel: React.FC<OrderInfoPanelProps> = ({
         width: "300px",
         backgroundColor: "#f0f0f0",
         padding: 2,
-        height: "100%",
+        height: "calc(100vh - 64px)",
         boxShadow: "2px 0 5px rgba(0, 0, 0, 0.1)",
         overflowY: "auto",
       }}
@@ -92,18 +91,27 @@ const OrderInfoPanel: React.FC<OrderInfoPanelProps> = ({
       </Box>
 
       {/* Account Info Section */}
-      <Box>
+      <Box sx={{ marginBottom: 3 }}>
         <Typography variant="h6" sx={{ marginBottom: 1 }}>
           Account Info
         </Typography>
-        <Typography variant="body2">
-          Account No: {summaryInfo.accountNo}
-        </Typography>
-        <Typography variant="body2">
-          FATIC | Split: {summaryInfo.split} | Cost Center:{" "}
-          {summaryInfo.costCenter}
-        </Typography>
-        <Typography variant="body2">National</Typography>
+        {accountInfoList.length === 0 ? (
+          <Typography variant="body2">No accounts selected.</Typography>
+        ) : (
+          accountInfoList.map((acc) => (
+            <Box key={acc.accountId} sx={{ marginBottom: 2 }}>
+              <Typography variant="body2">
+                Account No: {acc.accountId}
+              </Typography>
+              <Typography variant="body2">
+                FATIC | Split: {acc.split} | Cost Center: {acc.costCenter}
+              </Typography>
+              {acc.isNational && (
+                <Typography variant="body2">National</Typography>
+              )}
+            </Box>
+          ))
+        )}
       </Box>
 
       <Box sx={{ marginTop: 2, display: "flex", justifyContent: "center" }}>

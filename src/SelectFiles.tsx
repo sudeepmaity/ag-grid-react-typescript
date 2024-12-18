@@ -1,5 +1,4 @@
-// SelectFiles.tsx
-
+// Filename: SelectFiles.tsx
 import React, { useEffect, useCallback } from "react";
 import { Box, Typography } from "@mui/material";
 import { AgGridReact } from "ag-grid-react";
@@ -18,7 +17,8 @@ const SelectFiles: React.FC = () => {
   const [isLeftPanelVisible, setIsLeftPanelVisible] = React.useState(true);
   const [gridApi, setGridApi] = React.useState<any>(null);
 
-  const { setSelectedFilesAmount } = useOrderInfo();
+  const { setSelectedFilesAmount, accountInfoList, setAccountInfoList } =
+    useOrderInfo();
 
   const columnDefs: ColDef[] = [
     { headerName: "File Number", field: "fileNumber", checkboxSelection: true },
@@ -50,21 +50,68 @@ const SelectFiles: React.FC = () => {
     fetchData();
   }, [orderData]);
 
+  const fetchAccountInfo = async (accountId: string) => {
+    try {
+      const response = await fetch(`http://localhost:4050/api/${accountId}`);
+      if (!response.ok) {
+        console.error("Error fetching account info:", response.statusText);
+        return null;
+      }
+      const data = await response.json();
+      return data && data.length > 0 ? data[0] : null;
+    } catch (err) {
+      console.error("Error fetching account info:", err);
+      return null;
+    }
+  };
+
   const onGridReady = (params: any) => {
     setGridApi(params.api);
   };
 
-  const onSelectionChanged = useCallback(() => {
-    if (gridApi) {
-      const selectedNodes = gridApi.getSelectedNodes();
-      const selectedData = selectedNodes.map((node: any) => node.data);
-      const totalGross = selectedData.reduce(
-        (sum: number, row: FileRowData) => sum + row.gross,
-        0
-      );
-      setSelectedFilesAmount({ calculatedGross: totalGross.toString() });
+  const onSelectionChanged = useCallback(async () => {
+    if (!gridApi) return;
+
+    const selectedNodes = gridApi.getSelectedNodes();
+    const selectedData: FileRowData[] = selectedNodes.map(
+      (node: any) => node.data
+    );
+
+    // Update total gross
+    const totalGross = selectedData.reduce((sum, row) => sum + row.gross, 0);
+    setSelectedFilesAmount({ calculatedGross: totalGross.toString() });
+
+    // Determine which accounts are newly selected and which are deselected
+    const currentlySelectedIds = selectedData.map((d) => d.accountNumber);
+    const previouslySelectedIds = accountInfoList.map((item) => item.accountId);
+
+    // Newly selected IDs: in currentlySelected but not in previouslySelected
+    const newlySelectedIds = currentlySelectedIds.filter(
+      (id) => !previouslySelectedIds.includes(id)
+    );
+
+    // Deselect IDs: in previouslySelected but not in currentlySelected
+    const deselectedIds = previouslySelectedIds.filter(
+      (id) => !currentlySelectedIds.includes(id)
+    );
+
+    // Remove deselected items
+    let updatedList = accountInfoList.filter(
+      (item) => !deselectedIds.includes(item.accountId)
+    );
+
+    // Fetch info for newly selected items
+    for (const newId of newlySelectedIds) {
+      const accountInfo = await fetchAccountInfo(newId);
+      if (accountInfo) {
+        // Add new item at the front
+        updatedList = [accountInfo, ...updatedList].slice(0, 5);
+      }
     }
-  }, [gridApi, setSelectedFilesAmount]);
+
+    // Update state
+    setAccountInfoList(updatedList);
+  }, [gridApi, setSelectedFilesAmount, accountInfoList, setAccountInfoList]);
 
   if (!orderData) {
     return (
