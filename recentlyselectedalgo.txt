@@ -1,0 +1,71 @@
+const onSelectionChanged = useCallback(async () => {
+  const selectedRows = gridApiRef.current?.getSelectedRows() ?? [];
+  setSelectedRows(selectedRows);
+
+  const { grossTotal, netTotal } = selectedRows.reduce(
+    (acc, row) => {
+      acc.grossTotal += row.gross;
+      acc.netTotal += row.net;
+      return acc;
+    },
+    { grossTotal: 0, netTotal: 0 }
+  );
+
+  const reportedAmount = orderData?.reportedAmount ?? 0;
+  const netDifference = parseFloat((netTotal - reportedAmount).toFixed(2));
+
+  setSelectedFilesAmount({
+    calculatedGross: grossTotal,
+    calculatedNet: netTotal,
+    netDifference,
+  });
+
+  // Extract account IDs in the order they were returned (presumably selection order)
+  const accountIdsInOrder = selectedRows.map((row) => row.accountNumber);
+
+  // Reverse the array so the most recently selected row is first
+  const reversed = [...accountIdsInOrder].reverse();
+
+  // Use a Set on the reversed array to keep the first occurrence of each item (which
+  // corresponds to its *last* occurrence in the original order)
+  const uniqueReversed = [...new Set(reversed)];
+
+  // Reverse back to restore the original direction,
+  // but now each unique ID is positioned at its last occurrence
+  const uniqueAccountIds = uniqueReversed.reverse();
+
+  // If there are more than 5 unique IDs, only take the last 5
+  const maxItems = 5;
+  const truncatedAccountIds = uniqueAccountIds.slice(-maxItems);
+
+  console.log("DEBUG:: Extracting up to 5 unique account ids (last occurrence)", truncatedAccountIds);
+
+  try {
+    const accountInfoResponse = await getAccountInfoApi(truncatedAccountIds);
+    const accountInfoArray: AccountInfoType[] = accountInfoResponse.map(
+      ({
+        accountNumber,
+        contractualSplit,
+        costCenter,
+        isNationalAgentFlag,
+        jurisdictionStateCode,
+        remitAccountNumber,
+        underwriterCode,
+      }) => ({
+        accountNumber,
+        contractualSplit,
+        costCenter,
+        isNationalAgentFlag,
+        jurisdictionStateCode,
+        remitAccountNumber,
+        underwriterCode,
+      })
+    );
+
+    console.log("DEBUG :: Account Info Response (up to 5)", accountInfoArray);
+    // Set the accountInfoList in the context
+    setAccountInfoList(accountInfoArray);
+  } catch (error) {
+    console.error("Error fetching account info:", error);
+  }
+}, [setSelectedFilesAmount, setAccountInfoList, gridApiRef, orderData]);
