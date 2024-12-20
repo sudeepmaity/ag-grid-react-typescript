@@ -1,0 +1,234 @@
+// filename: AccountInfoDetailRow.tsx
+
+import React, { FC } from 'react';
+import { makeStyles, Theme } from '@material-ui/core/styles';
+import { Typography } from '@material-ui/core';
+
+const useStyles = makeStyles((theme: Theme) => ({
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    width: '100%',
+    marginBottom: theme.spacing(2),
+    padding: theme.spacing(-1),
+    marginLeft: theme.spacing(0),
+  },
+  row: {
+    display: 'flex',
+    width: '100%',
+    justifyContent: 'space-between',
+    marginBottom: theme.spacing(1),
+  },
+  halfWidth: {
+    flex: '0 0 48%',
+  },
+  item: {
+    whiteSpace: 'pre-wrap',
+    textTransform: 'capitalize',
+    marginRight: theme.spacing(-3),
+  },
+  value: {
+    whiteSpace: 'pre-wrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    marginLeft: theme.spacing(1),
+  },
+}));
+
+export const AccountInfoDetailRow: FC<{
+  accountNumber: number;
+  state: string;
+  costCenter: string;
+  split: number;
+  underwriter: string;
+  isNationalAgentFlag: boolean;
+}> = ({
+  accountNumber,
+  state,
+  costCenter,
+  split,
+  underwriter,
+  isNationalAgentFlag,
+}) => {
+  const classes = useStyles();
+
+  // Internal component to avoid duplication
+  const RowItem: FC<{ label?: string; value?: string | number }> = ({ label, value }) => (
+    <div style={{ display: 'flex' }}>
+      {label && (
+        <Typography variant="h6" className={classes.item} color="textSecondary">
+          {label}
+        </Typography>
+      )}
+      <Typography variant="body2" className={classes.value} color="textPrimary">
+        {value}
+      </Typography>
+    </div>
+  );
+
+  return (
+    <div className={classes.container}>
+      {/* Row 1 */}
+      <div className={classes.row}>
+        <div className={classes.halfWidth}>
+          <RowItem label="ACCOUNT NO." value={accountNumber} />
+        </div>
+        <div className={classes.halfWidth}>
+          {isNationalAgentFlag && <RowItem value="NATIONAL" />}
+        </div>
+      </div>
+
+      {/* Row 2 */}
+      <div className={classes.row}>
+        <div className={classes.halfWidth}>
+          <RowItem label="State:" value={state} />
+        </div>
+        <div className={classes.halfWidth}>
+          <RowItem label="CostCenter:" value={costCenter} />
+        </div>
+      </div>
+
+      {/* Row 3 */}
+      <div className={classes.row}>
+        <div className={classes.halfWidth}>
+          <RowItem label="Split:" value={`${split}%`} />
+        </div>
+        <div className={classes.halfWidth}>
+          <RowItem label="Underwriter:" value={underwriter} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// filename: OrderInfoPanel.tsx
+
+import React from 'react';
+import { Grid, Typography, Divider } from '@material-ui/core';
+import { makeStyles, Theme } from '@material-ui/core/styles';
+import { useOrderInfo } from 'hooks/OrderInfoContext';
+import moment from 'moment';
+import { useLocation } from 'react-router-dom';
+import { DetailRow } from './DetailRow';
+import { AccountInfoDetailRow } from './AccountInfoDetailRow'; // Updated import
+import { numberValueFormatter } from './fileListConfig';
+import { orderType } from './types'; // Adjust if needed
+
+const useStyles = makeStyles((theme: Theme) => ({
+  orderDetailsContainer: {
+    marginTop: theme.spacing(2),
+    padding: theme.spacing(2),
+  },
+  title: {
+    display: 'flex',
+    flexDirection: 'row',
+    width: '100%',
+    flexGrow: 1,
+  },
+  subtitle: {
+    whiteSpace: 'nowrap',
+    width: 93,
+  },
+  sectionTitle: {
+    marginTop: theme.spacing(0.5),
+    marginBottom: theme.spacing(1),
+  },
+  divider: {
+    margin: `${theme.spacing(2)}px 0`,
+  },
+  borderBottom: {
+    borderBottom: `1px solid ${theme.palette.divider}`,
+  },
+}));
+
+const OrderInfoPanel: React.FC = () => {
+  const noInfo = '---'; // placeholder for missing info
+  const classes = useStyles();
+  const location = useLocation<{ order: orderType }>();
+  const orderData = location.state?.order;
+
+  const { selectedFilesAmount, accountInfoList } = useOrderInfo();
+
+  const reportedNet = orderData?.reportedAmount || 0;
+  const calculatedNet = selectedFilesAmount?.calculatedNet || 0;
+  const netDifference = parseFloat((calculatedNet - reportedNet).toFixed(2));
+  const calculatedGross = selectedFilesAmount?.calculatedGross || 0;
+  const netDifferenceColor = netDifference !== 0 ? 'red' : 'green';
+
+  return (
+    <div>
+      <Grid
+        container
+        className={`${classes.orderDetailsContainer} ${
+          accountInfoList.length > 0 ? classes.borderBottom : ''
+        }`}
+      >
+        <Grid item sm={12}>
+          {/* Order Info Title */}
+          <div className={classes.title}>
+            <Typography variant="h4" className={classes.subtitle} color="textSecondary">
+              Order Info
+            </Typography>
+          </div>
+
+          <DetailRow label="Firm Name:" value={orderData?.firm?.firmName || noInfo} />
+          <DetailRow
+            label="Order Date:"
+            value={orderData?.orderDate ? moment(orderData.orderDate).format('MM/DD/YYYY') : noInfo}
+          />
+          <DetailRow label="Lockbox Number:" value={orderData?.lockboxNumber?.name || noInfo} />
+          <DetailRow label="Batch/Ticket Reference No:" value={orderData?.batchNumber || noInfo} />
+          <DetailRow label="No. of Checks:" value={orderData?.numberOfChecks || 0} isLast />
+
+          {/* Summary Title */}
+          <div className={classes.title}>
+            <Typography variant="h4" className={classes.subtitle} color="textSecondary">
+              Summary
+            </Typography>
+          </div>
+
+          <DetailRow label="Calculated Gross:" value={numberValueFormatter(calculatedGross, true)} isAmount />
+          <DetailRow label="Reported Net:" value={numberValueFormatter(reportedNet, true)} isAmount />
+          <DetailRow label="Calculated Net:" value={numberValueFormatter(calculatedNet, true)} isAmount />
+          <DetailRow
+            label="Net Difference:"
+            value={numberValueFormatter(netDifference, true)}
+            isAmount
+            isEnd
+            valueStyle={{ color: netDifferenceColor }}
+          />
+
+          {/* Divider */}
+          <Divider className={classes.divider} />
+
+          {accountInfoList.length > 0 && (
+            <>
+              {/* Account Info Title */}
+              <div className={classes.sectionTitle}>
+                <Typography variant="h4" className={classes.subtitle} color="textSecondary">
+                  Account Info
+                </Typography>
+              </div>
+
+              {accountInfoList.map((accountInfo, index) => (
+                <AccountInfoDetailRow
+                  key={index}
+                  accountNumber={accountInfo.accountNumber}
+                  state={accountInfo.jurisdictionStateCode}
+                  costCenter={accountInfo.costCenter}
+                  split={accountInfo.contractualSplit}
+                  underwriter={accountInfo.underwriterCode}
+                  isNationalAgentFlag={accountInfo.isNationalAgentFlag}
+                />
+              ))}
+            </>
+          )}
+        </Grid>
+      </Grid>
+    </div>
+  );
+};
+
+export default OrderInfoPanel;
+
+
