@@ -1,0 +1,53 @@
+import React, { useCallback, useRef, useState, useEffect } from 'react';
+import { useAsync } from 'react-async-hook';
+import { getAccountInfoApi } from 'path-to-your-api';
+import type { AccountInfoType } from 'path-to-your-types';
+
+function MyComponent({ orderData }) {
+  const gridApiRef = useRef<any>(null);
+  const [selectedRows, setSelectedRows] = useState<any[]>([]);
+  const [selectedFilesAmount, setSelectedFilesAmount] = useState({
+    calculatedGross: 0,
+    calculatedNet: 0,
+    netDifference: 0,
+  });
+
+  const {
+    execute: getAccountInfoApiExecute,
+    status: getAccountInfoApiStatus,
+    value: accountInfoApiResult,
+    error: getAccountInfoApiError,
+  } = useAsync<AccountInfoType[], [number[]]>(getAccountInfoApi, false);
+
+  const onSelectionChanged = useCallback(() => {
+    const selectedRowsLocal = gridApiRef.current?.getSelectedRows() ?? [];
+    setSelectedRows(selectedRowsLocal);
+
+    const accountIds = selectedRowsLocal.map((row: any) => row.accountId);
+    getAccountInfoApiExecute(accountIds);
+
+    const grossTotal = selectedRowsLocal.reduce((acc, row) => acc + row.gross, 0);
+    const netTotal = selectedRowsLocal.reduce((acc, row) => acc + row.net, 0);
+    const netDifference = parseFloat(
+      (netTotal - (orderData?.reportedAmount || 0)).toFixed(2)
+    );
+
+    setSelectedFilesAmount({
+      calculatedGross: grossTotal,
+      calculatedNet: netTotal,
+      netDifference,
+    });
+  }, [gridApiRef, setSelectedRows, getAccountInfoApiExecute, setSelectedFilesAmount, orderData]);
+
+  useEffect(() => {
+    if (accountInfoApiResult) {
+      // Optional: handle the returned account info here
+      console.log('Account info loaded:', accountInfoApiResult);
+    }
+  }, [accountInfoApiResult]);
+
+  // Render your grid, hooking up onSelectionChanged, etc.
+  // ...
+}
+
+export default MyComponent;
