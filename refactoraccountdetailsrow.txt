@@ -1,0 +1,86 @@
+// filename: AccountInfoDetailRow.tsx
+
+import React, { FC } from 'react';
+import { Grid, Typography } from '@material-ui/core';
+
+interface AccountDetailRowProps {
+  accountNumber: number;
+  state: string;
+  costCenter: string;
+  split: number;
+  underwriter: string;
+  isNationalAgentFlag: boolean;
+}
+
+export const AccountDetailRow: FC<AccountDetailRowProps> = ({
+  accountNumber,
+  state,
+  costCenter,
+  split,
+  underwriter,
+  isNationalAgentFlag,
+}) => {
+  return (
+    <Grid container direction="column" spacing={2}>
+      {/* First Row */}
+      <Grid container item justifyContent="space-between">
+        <Typography variant="h6" color="textSecondary">
+          ACCOUNT NO. {accountNumber}
+        </Typography>
+        <Typography variant="body2" color="textPrimary">
+          {isNationalAgentFlag && 'NATIONAL'}
+        </Typography>
+      </Grid>
+
+      {/* Second Row */}
+      <Grid container item spacing={2} alignItems="center">
+        <Grid item>
+          <Typography variant="h6" color="textSecondary">
+            State:
+          </Typography>
+        </Grid>
+        <Grid item>
+          <Typography variant="body2" color="textPrimary">
+            {state}
+          </Typography>
+        </Grid>
+
+        <Grid item>
+          <Typography variant="h6" color="textSecondary">
+            CostCenter:
+          </Typography>
+        </Grid>
+        <Grid item>
+          <Typography variant="body2" color="textPrimary">
+            {costCenter}
+          </Typography>
+        </Grid>
+      </Grid>
+
+      {/* Third Row */}
+      <Grid container item spacing={2} alignItems="center">
+        <Grid item>
+          <Typography variant="h6" color="textSecondary">
+            Split:
+          </Typography>
+        </Grid>
+        <Grid item>
+          <Typography variant="body2" color="textPrimary">
+            {split}%
+          </Typography>
+        </Grid>
+
+        <Grid item>
+          <Typography variant="h6" color="textSecondary">
+            Underwriter:
+          </Typography>
+        </Grid>
+        <Grid item>
+          <Typography variant="body2" color="textPrimary">
+            {underwriter}
+          </Typography>
+        </Grid>
+      </Grid>
+    </Grid>
+  );
+};
