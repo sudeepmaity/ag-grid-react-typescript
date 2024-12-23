@@ -84,3 +84,92 @@ export const AccountDetailRow: FC<AccountDetailRowProps> = ({
     </Grid>
   );
 };
+
+===============================================================================
+
+// filename: AccountInfoDetailRow.tsx
+
+import React, { FC } from 'react';
+import { Grid, Typography } from '@material-ui/core';
+
+// Parent component props
+interface AccountDetailRowProps {
+  accountNumber: number;
+  state: string;
+  costCenter: string;
+  split: number;
+  underwriter: string;
+  isNationalAgentFlag: boolean;
+}
+
+// Reusable row component props
+interface LabelValuePair {
+  label: string;
+  value?: string | number | null;
+}
+
+interface AccountInfoRowProps {
+  pairs: LabelValuePair[];
+}
+
+export const AccountInfoDetailRow: FC<AccountDetailRowProps> = ({
+  accountNumber,
+  state,
+  costCenter,
+  split,
+  underwriter,
+  isNationalAgentFlag,
+}) => {
+  // Define your reusable row component inside the same file.
+  const AccountInfoRow: FC<AccountInfoRowProps> = ({ pairs }) => {
+    return (
+      <Grid container item spacing={2} alignItems="center">
+        {pairs.map((pair) => (
+          <React.Fragment key={pair.label}>
+            <Grid item>
+              <Typography variant="h6" color="textSecondary">
+                {pair.label}
+              </Typography>
+            </Grid>
+            <Grid item>
+              <Typography variant="body2" color="textPrimary">
+                {pair.value}
+              </Typography>
+            </Grid>
+          </React.Fragment>
+        ))}
+      </Grid>
+    );
+  };
+
+  return (
+    <Grid container direction="column" spacing={2}>
+      {/* Row 1 */}
+      <AccountInfoRow
+        pairs={[
+          {
+            label: `ACCOUNT NO. ${accountNumber}`,
+            value: isNationalAgentFlag ? 'NATIONAL' : '',
+          },
+        ]}
+      />
+
+      {/* Row 2 */}
+      <AccountInfoRow
+        pairs={[
+          { label: 'State:', value: state },
+          { label: 'CostCenter:', value: costCenter },
+        ]}
+      />
+
+      {/* Row 3 */}
+      <AccountInfoRow
+        pairs={[
+          { label: 'Split:', value: `${split}%` },
+          { label: 'Underwriter:', value: underwriter },
+        ]}
+      />
+    </Grid>
+  );
+};
+
