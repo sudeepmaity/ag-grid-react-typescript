@@ -173,3 +173,111 @@ export const AccountInfoDetailRow: FC<AccountDetailRowProps> = ({
   );
 };
 
+
+========================================================
+
+import React, { FC } from 'react';
+import { Grid, Typography } from '@material-ui/core';
+
+interface AccountDetailRowProps {
+  accountNumber: number;
+  state: string;
+  costCenter: string;
+  split: number;
+  underwriter: string;
+  isNationalAgentFlag: boolean;
+}
+
+export const AccountInfoDetailRow: FC<AccountDetailRowProps> = ({
+  accountNumber,
+  state,
+  costCenter,
+  split,
+  underwriter,
+  isNationalAgentFlag,
+}) => {
+  return (
+    <Grid container direction="column" spacing={2}>
+      {/* Row 1: Account No. / NATIONAL */}
+      <Grid container item spacing={2} alignItems="center">
+        {/* Left side */}
+        <Grid item>
+          <Typography variant="h6" color="textSecondary">
+            ACCOUNT NO. {accountNumber}
+          </Typography>
+        </Grid>
+
+        {/* Expandable empty space */}
+        <Grid item xs />
+
+        {/* Right side */}
+        <Grid item>
+          <Typography variant="body2" color="textPrimary">
+            {isNationalAgentFlag && 'NATIONAL'}
+          </Typography>
+        </Grid>
+      </Grid>
+
+      {/* Row 2: State / CostCenter (pushed to the right) */}
+      <Grid container item spacing={2} alignItems="center">
+        {/* Left side */}
+        <Grid item>
+          <Typography variant="h6" color="textSecondary">
+            State:
+          </Typography>
+        </Grid>
+        <Grid item>
+          <Typography variant="body2" color="textPrimary">
+            {state}
+          </Typography>
+        </Grid>
+
+        {/* Expandable empty space */}
+        <Grid item xs />
+
+        {/* Right side */}
+        <Grid item>
+          <Typography variant="h6" color="textSecondary">
+            Cost Center:
+          </Typography>
+        </Grid>
+        <Grid item>
+          <Typography variant="body2" color="textPrimary">
+            {costCenter}
+          </Typography>
+        </Grid>
+      </Grid>
+
+      {/* Row 3: Split / Underwriter (pushed to the right) */}
+      <Grid container item spacing={2} alignItems="center">
+        {/* Left side */}
+        <Grid item>
+          <Typography variant="h6" color="textSecondary">
+            Split:
+          </Typography>
+        </Grid>
+        <Grid item>
+          <Typography variant="body2" color="textPrimary">
+            {split}%
+          </Typography>
+        </Grid>
+
+        {/* Expandable empty space */}
+        <Grid item xs />
+
+        {/* Right side */}
+        <Grid item>
+          <Typography variant="h6" color="textSecondary">
+            Underwriter:
+          </Typography>
+        </Grid>
+        <Grid item>
+          <Typography variant="body2" color="textPrimary">
+            {underwriter}
+          </Typography>
+        </Grid>
+      </Grid>
+    </Grid>
+  );
+};
+
